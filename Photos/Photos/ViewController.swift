@@ -7,11 +7,19 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class AlbumsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        title = "Albums"
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [unowned self] in
+            let vc = UIViewController()
+            vc.view.backgroundColor = .green
+            vc.title = "Photos"
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 
 
