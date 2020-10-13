@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FBSDKLoginKit
 
 class AlbumsViewController: UIViewController {
     
@@ -22,18 +23,33 @@ class AlbumsViewController: UIViewController {
         cv.alwaysBounceVertical = true
         return cv
     }()
+    
+    var logoutButton: UIButton {
+        let logoutButton = UIButton()
+        logoutButton.setTitle("Logout", for: .normal)
+        logoutButton.addTarget(self, action: #selector(login), for: .touchUpInside)
+        let item = UIBarButtonItem(customView: logoutButton)
+        navigationItem.leftBarButtonItem = item
+        logoutButton.isHidden = true
+        return logoutButton
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Albums"
         
-        albums = MockData.albums
-        
-        layout()
+        if let token = AccessToken.current, !token.isExpired {
+            albums = MockData.albums
+            layout()
+        } else {
+            login()
+        }
     }
     
     private func layout() {
+        logoutButton.isHidden = false
+        
         view.addSubview(albumsCollection)
         NSLayoutConstraint.activate([
             albumsCollection.topAnchor.constraint(equalTo: view.topAnchor),
@@ -41,6 +57,14 @@ class AlbumsViewController: UIViewController {
             albumsCollection.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             albumsCollection.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+    
+    @objc
+    private func login() {
+        let loginVC = LoginViewController()
+        loginVC.modalPresentationStyle = .fullScreen
+        loginVC.loginButton.delegate = self
+        present(loginVC, animated: true)
     }
 
     private let albumCellIdentifier: String = "AlbumCell"
@@ -80,6 +104,24 @@ extension AlbumsViewController: UICollectionViewDelegate {
         let album = albums[indexPath.item]
         vc.album = album
         navigationController?.pushViewController(vc, animated: true)
+    }
+    
+}
+
+extension AlbumsViewController: LoginButtonDelegate {
+    
+    func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
+        guard result?.isCancelled == false else { return }
+        guard result?.grantedPermissions.contains("user_photos") ?? false else { return }
+        dismiss(animated: true) { [weak self] in
+            self?.albums = MockData.albums
+            self?.layout()
+        }
+    }
+    
+    func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
+        dismiss(animated: true)
+        login()
     }
     
 }

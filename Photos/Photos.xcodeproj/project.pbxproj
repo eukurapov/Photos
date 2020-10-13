@@ -3,10 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		440FCC312535EBD70011EED3 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC302535EBD70011EED3 /* FacebookCore */; };
+		440FCC332535EBD70011EED3 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC322535EBD70011EED3 /* FacebookLogin */; };
+		440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440FCC352535EDCA0011EED3 /* LoginViewController.swift */; };
 		445F97AA253495CA00D9C102 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445F97A9253495CA00D9C102 /* AppDelegate.swift */; };
 		445F97AE253495CA00D9C102 /* AlbumsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445F97AD253495CA00D9C102 /* AlbumsViewController.swift */; };
 		445F97B3253495CC00D9C102 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 445F97B2253495CC00D9C102 /* Assets.xcassets */; };
@@ -21,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		440FCC352535EDCA0011EED3 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		445F97A6253495CA00D9C102 /* Photos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Photos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		445F97A9253495CA00D9C102 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		445F97AD253495CA00D9C102 /* AlbumsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumsViewController.swift; sourceTree = "<group>"; };
@@ -41,6 +45,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				440FCC332535EBD70011EED3 /* FacebookLogin in Frameworks */,
+				440FCC312535EBD70011EED3 /* FacebookCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +75,7 @@
 				445F97CD25349C0C00D9C102 /* Model */,
 				445F97D625349ED900D9C102 /* Views */,
 				445F97C02534981600D9C102 /* Supportive Files */,
+				440FCC352535EDCA0011EED3 /* LoginViewController.swift */,
 				445F97AD253495CA00D9C102 /* AlbumsViewController.swift */,
 				445F97E22534BA9E00D9C102 /* PhotosViewController.swift */,
 				445F97E52534C06900D9C102 /* DetailViewController.swift */,
@@ -122,6 +129,10 @@
 			dependencies = (
 			);
 			name = Photos;
+			packageProductDependencies = (
+				440FCC302535EBD70011EED3 /* FacebookCore */,
+				440FCC322535EBD70011EED3 /* FacebookLogin */,
+			);
 			productName = Photos;
 			productReference = 445F97A6253495CA00D9C102 /* Photos.app */;
 			productType = "com.apple.product-type.application";
@@ -149,6 +160,9 @@
 				Base,
 			);
 			mainGroup = 445F979D253495CA00D9C102;
+			packageReferences = (
+				440FCC2F2535EBD70011EED3 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
+			);
 			productRefGroup = 445F97A7253495CA00D9C102 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -183,6 +197,7 @@
 				445F97AE253495CA00D9C102 /* AlbumsViewController.swift in Sources */,
 				445F97AA253495CA00D9C102 /* AppDelegate.swift in Sources */,
 				445F97D825349F0D00D9C102 /* AlbumCell.swift in Sources */,
+				440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */,
 				445F97CF25349C1C00D9C102 /* Album.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,6 +392,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		440FCC2F2535EBD70011EED3 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		440FCC302535EBD70011EED3 /* FacebookCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 440FCC2F2535EBD70011EED3 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookCore;
+		};
+		440FCC322535EBD70011EED3 /* FacebookLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 440FCC2F2535EBD70011EED3 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 445F979E253495CA00D9C102 /* Project object */;
 }
