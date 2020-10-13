@@ -11,9 +11,10 @@ import UIKit
 
 class PhotoCell: UICollectionViewCell {
     
-    var imageView = UIImageView()
-    var nameLabel = UILabel()
-    var createdAtLabel = UILabel()
+    private var imageView = UIImageView()
+    private var nameLabel = UILabel()
+    private var createdAtLabel = UILabel()
+    private var activityIndicator = UIActivityIndicatorView()
     
     var photo: Photo? {
         didSet {
@@ -23,6 +24,7 @@ class PhotoCell: UICollectionViewCell {
             DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + TimeInterval.random(in: 0...3)) { [weak self] in
                 if let url = photo.imageURL, let data = try? Data(contentsOf: url) {
                     DispatchQueue.main.async {
+                        self?.activityIndicator.stopAnimating()
                         self?.imageView.image = UIImage(data: data)
                     }
                 }
@@ -54,6 +56,7 @@ class PhotoCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtLabel.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -67,6 +70,7 @@ class PhotoCell: UICollectionViewCell {
         
         addSubview(imageView)
         addSubview(stackView)
+        addSubview(activityIndicator)
         
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: topAnchor),
@@ -74,10 +78,16 @@ class PhotoCell: UICollectionViewCell {
             imageView.heightAnchor.constraint(equalToConstant: PhotoCell.previewSize),
             imageView.widthAnchor.constraint(equalToConstant: PhotoCell.previewSize),
             
+            activityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor),
+            
             stackView.leadingAnchor.constraint(equalToSystemSpacingAfter: imageView.trailingAnchor, multiplier: 1),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             trailingAnchor.constraint(equalToSystemSpacingAfter: stackView.trailingAnchor, multiplier: 1)
         ])
+        
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
     }
     
     static let previewSize: CGFloat = 120
