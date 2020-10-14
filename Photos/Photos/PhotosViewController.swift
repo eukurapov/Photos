@@ -10,6 +10,7 @@ import UIKit
 class PhotosViewController: UIViewController {
     
     var album: Album?
+    private var photos = [Photo]()
     private lazy var photosCollection: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.minimumLineSpacing = 8
@@ -28,7 +29,21 @@ class PhotosViewController: UIViewController {
 
         title = album?.name
         
+        loadData()
         layout()
+    }
+    
+    private func loadData() {
+        guard let album = album else { return }
+        PhotoService.shared.fetchPhotosForAlbum(album) { [weak self] result in
+            switch result {
+            case .success(let photos):
+                self?.photos = photos
+                self?.photosCollection.reloadData()
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
     
     private func layout() {
@@ -53,13 +68,13 @@ class PhotosViewController: UIViewController {
 extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return album?.photos.count ?? 0
+        return photos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = photosCollection.dequeueReusableCell(withReuseIdentifier: photoCellIdentifier, for: indexPath)
         if let photoCell = cell as? PhotoCell {
-            photoCell.photo = album?.photos[indexPath.item]
+            photoCell.photo = photos[indexPath.item]
         }
         return cell
     }
@@ -83,10 +98,10 @@ extension PhotosViewController: UICollectionViewDelegate {
         pageController.view.backgroundColor = .systemBackground
         pageController.delegate = self
         pageController.dataSource = self
-        let photo = album?.photos[indexPath.item]
+        let photo = photos[indexPath.item]
         let vc = DetailViewController()
         vc.photo = photo
-        pageController.navigationItem.title = photo?.name
+        pageController.navigationItem.title = photo.name
         pageController.setViewControllers([vc], direction: .forward, animated: false)
         navigationController?.pushViewController(pageController, animated: true)
     }
@@ -96,9 +111,9 @@ extension PhotosViewController: UICollectionViewDelegate {
 extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        if let index = album?.photos.firstIndex(where: { $0.name == viewController.title }) {
+        if let index = photos.firstIndex(where: { $0.name == viewController.title }) {
             if index > 0 {
-                let photo = album?.photos[index - 1]
+                let photo = photos[index - 1]
                 let vc = DetailViewController()
                 vc.photo = photo
                 return vc
@@ -108,9 +123,9 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        if let index = album?.photos.firstIndex(where: { $0.name == viewController.title }) {
-            if index < album!.photos.count - 1 {
-                let photo = album?.photos[index + 1]
+        if let index = photos.firstIndex(where: { $0.name == viewController.title }) {
+            if index < photos.count - 1 {
+                let photo = photos[index + 1]
                 let vc = DetailViewController()
                 vc.photo = photo
                 return vc

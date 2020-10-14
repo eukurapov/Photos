@@ -7,15 +7,16 @@
 
 import Foundation
 
-struct Album {
+struct Album: Codable {
     
+    var id: String
     var name: String
     var createdAt: Date
-    var coverImagePath: String
-    var photos = [Photo]()
     
-    var coverImageUrl: URL? {
-        URL(string: coverImagePath)
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case createdAt = "created_time"
     }
     
 }

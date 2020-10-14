@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FBSDKCoreKit
 
 class AlbumCell: UICollectionViewCell {
     
@@ -19,12 +20,15 @@ class AlbumCell: UICollectionViewCell {
             guard let album = self.album else { return }
             nameLabel.text = album.name
             createdAtLabel.text = dateFormatter.string(from: album.createdAt)
-            DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + TimeInterval.random(in: 0...3)) { [weak self] in
-                if let url = album.coverImageUrl, let data = try? Data(contentsOf: url) {
-                    DispatchQueue.main.async {
-                        self?.activityIndicator.stopAnimating()
-                        self?.coverImageView.image = UIImage(data: data)
-                    }
+            PhotoService.shared.fetchCoverImageForAlbum(album) { [weak self] result in
+                switch result {
+                case .success(let image):
+                    self?.activityIndicator.stopAnimating()
+                    self?.coverImageView.image = image
+                case .failure(let error):
+                    self?.activityIndicator.stopAnimating()
+                    self?.coverImageView.image = UIImage(systemName: "exclamationmark.icloud")
+                    print(error.localizedDescription)
                 }
             }
         }

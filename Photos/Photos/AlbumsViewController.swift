@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FBSDKCoreKit
 import FBSDKLoginKit
 
 class AlbumsViewController: UIViewController {
@@ -24,14 +25,11 @@ class AlbumsViewController: UIViewController {
         return cv
     }()
     
-    var logoutButton: UIButton {
-        let logoutButton = UIButton()
-        logoutButton.setTitle("Logout", for: .normal)
-        logoutButton.addTarget(self, action: #selector(login), for: .touchUpInside)
-        let item = UIBarButtonItem(customView: logoutButton)
+    var logoutButton: UIBarButtonItem {
+        let item = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(login))
         navigationItem.leftBarButtonItem = item
-        logoutButton.isHidden = true
-        return logoutButton
+        item.isEnabled = false
+        return item
     }
 
     override func viewDidLoad() {
@@ -40,15 +38,27 @@ class AlbumsViewController: UIViewController {
         title = "Albums"
         
         if let token = AccessToken.current, !token.isExpired {
-            albums = MockData.albums
+            getData()
             layout()
         } else {
             login()
         }
     }
     
+    private func getData() {
+        PhotoService.shared.fetchAlbums { [weak self] result in
+            switch result {
+            case .success(let albums):
+                self?.albums = albums
+                self?.albumsCollection.reloadData()
+            case .failure(let error):
+                print("-- Albums fetching error --\n\(error.localizedDescription)")
+            }
+        }
+    }
+    
     private func layout() {
-        logoutButton.isHidden = false
+        logoutButton.isEnabled = true
         
         view.addSubview(albumsCollection)
         NSLayoutConstraint.activate([
@@ -112,15 +122,16 @@ extension AlbumsViewController: LoginButtonDelegate {
     
     func loginButton(_ loginButton: FBLoginButton, didCompleteWith result: LoginManagerLoginResult?, error: Error?) {
         guard result?.isCancelled == false else { return }
-        guard result?.grantedPermissions.contains("user_photos") ?? false else { return }
+        guard result?.grantedPermissions.contains(PhotoService.fbPhotoPermission) ?? false else { return }
         dismiss(animated: true) { [weak self] in
-            self?.albums = MockData.albums
+            self?.getData()
             self?.layout()
         }
     }
     
     func loginButtonDidLogOut(_ loginButton: FBLoginButton) {
         dismiss(animated: true)
+        albums.removeAll()
         login()
     }
     

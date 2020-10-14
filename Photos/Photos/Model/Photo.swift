@@ -7,14 +7,20 @@
 
 import Foundation
 
-struct Photo: Equatable {
-    
+struct Photo: Codable, Equatable {
+        
+    var id: String
     var name: String
     var createdAt: Date
-    var imagePath: String
     
-    var imageURL: URL? {
-        URL(string: imagePath)
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case createdAt = "created_time"
+    }
+    
+    static func == (lhs: Photo, rhs: Photo) -> Bool {
+        return lhs.id == rhs.id
     }
     
 }

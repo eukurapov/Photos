@@ -18,15 +18,20 @@ class PhotoCell: UICollectionViewCell {
     
     var photo: Photo? {
         didSet {
+            activityIndicator.startAnimating()
+            imageView.image = nil
             guard let photo = self.photo else { return }
             nameLabel.text = photo.name
             createdAtLabel.text = dateFormatter.string(from: photo.createdAt)
-            DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + TimeInterval.random(in: 0...3)) { [weak self] in
-                if let url = photo.imageURL, let data = try? Data(contentsOf: url) {
-                    DispatchQueue.main.async {
-                        self?.activityIndicator.stopAnimating()
-                        self?.imageView.image = UIImage(data: data)
-                    }
+            PhotoService.shared.fetchAlbumImageForPhoto(photo) { [weak self] result in
+                switch result {
+                case .success(let image):
+                    self?.activityIndicator.stopAnimating()
+                    self?.imageView.image = image
+                case .failure(let error):
+                    self?.activityIndicator.stopAnimating()
+                    self?.imageView.image = UIImage(systemName: "exclamationmark.icloud")
+                    print(error.localizedDescription)
                 }
             }
         }
