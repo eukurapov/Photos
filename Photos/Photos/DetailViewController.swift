@@ -9,26 +9,20 @@ import UIKit
 
 class DetailViewController: UIViewController {
     
-    var photo: Photo? {
+    var photo: Photo?
+    private var image: UIImage? {
         didSet {
-            activityIndicator.startAnimating()
-            imageView.image = nil
-            guard let photo = self.photo else { return }
-            PhotoService.shared.fetchAlbumImageForPhoto(photo) { [weak self] result in
-                switch result {
-                case .success(let image):
-                    self?.activityIndicator.stopAnimating()
-                    self?.imageView.image = image
-                case .failure(let error):
-                    self?.activityIndicator.stopAnimating()
-                    self?.imageView.image = UIImage(systemName: "exclamationmark.icloud")
-                    print(error.localizedDescription)
-                }
-                let size = CGSize(width: self?.boundsWidthInSafeArea ?? 0, height: self?.boundsHeightInSafeArea ?? 0)
-                self?.updateMinZoomScaleForSize(size)
-                self?.scrollView.zoomScale = self!.scrollView.minimumZoomScale
-                self?.centerImageViewForSize(size)
+            guard let image = image else {
+                imageView.image = nil
+                activityIndicator.startAnimating()
+                return
             }
+            activityIndicator.stopAnimating()
+            imageView.image = image
+            let size = CGSize(width: boundsWidthInSafeArea, height: boundsHeightInSafeArea)
+            updateMinZoomScaleForSize(size)
+            scrollView.zoomScale = scrollView.minimumZoomScale
+            centerImageViewForSize(size)
         }
     }
     private var imageView = UIImageView()
@@ -82,9 +76,23 @@ class DetailViewController: UIViewController {
         ])
     }
     
+    private func fetchImage() {
+        guard let photo = self.photo else { return }
+        PhotoService.shared.fetchAlbumImageForPhoto(photo) { [weak self] result in
+            switch result {
+            case .success(let image):
+                self?.image = image
+            case .failure(let error):
+                self?.image = UIImage(systemName: "exclamationmark.icloud")
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         navigationController?.hidesBarsOnTap = true
+        fetchImage()
     }
     
     private func updateMinZoomScaleForSize(_ size: CGSize) {

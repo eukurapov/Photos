@@ -45,6 +45,7 @@ class PhotoCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
+        style()
         layout()
     }
     
@@ -52,19 +53,20 @@ class PhotoCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func layout() {
+    private func style() {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
         createdAtLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
         createdAtLabel.alpha = 0.7
-        
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+    }
+    
+    private func layout() {
         translatesAutoresizingMaskIntoConstraints = false
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtLabel.translatesAutoresizingMaskIntoConstraints = false
         imageView.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
         
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
