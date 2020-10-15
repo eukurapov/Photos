@@ -10,7 +10,7 @@ import Foundation
 struct Photo: Codable, Equatable {
         
     var id: String
-    var name: String
+    var name: String?
     var createdAt: Date
     
     enum CodingKeys: String, CodingKey {

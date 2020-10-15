@@ -41,7 +41,7 @@ class PhotosViewController: UIViewController {
                 self?.photos = photos
                 self?.photosCollection.reloadData()
             case .failure(let error):
-                print(error.localizedDescription)
+                print(error)
             }
         }
     }
@@ -111,7 +111,8 @@ extension PhotosViewController: UICollectionViewDelegate {
 extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        if let index = photos.firstIndex(where: { $0.name == viewController.title }) {
+        guard let detailVC = viewController as? DetailViewController, let currentPhoto = detailVC.photo else { return nil }
+        if let index = photos.firstIndex(of: currentPhoto) {
             if index > 0 {
                 let photo = photos[index - 1]
                 let vc = DetailViewController()
@@ -123,7 +124,8 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
     }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        if let index = photos.firstIndex(where: { $0.name == viewController.title }) {
+        guard let detailVC = viewController as? DetailViewController, let currentPhoto = detailVC.photo else { return nil }
+        if let index = photos.firstIndex(of: currentPhoto) {
             if index < photos.count - 1 {
                 let photo = photos[index + 1]
                 let vc = DetailViewController()
