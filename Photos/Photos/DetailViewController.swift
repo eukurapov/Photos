@@ -37,7 +37,8 @@ class DetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = photo?.name
+        parent?.navigationItem.title = photo?.name
+        parent?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share))
         
         layout()
         
@@ -87,6 +88,13 @@ class DetailViewController: UIViewController {
                 print(error.localizedDescription)
             }
         }
+    }
+    
+    @objc
+    private func share() {
+        guard let image = image else { return }
+        let ac = UIActivityViewController(activityItems: [image, photo?.name ?? ""], applicationActivities: nil)
+        present(ac, animated: true)
     }
     
     override func viewDidAppear(_ animated: Bool) {

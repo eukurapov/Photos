@@ -136,10 +136,4 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
         return nil
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        if let detailVC = pageViewController.viewControllers?.first as? DetailViewController {
-            pageViewController.navigationItem.title = detailVC.photo?.name
-        }
-    }
-    
 }
