@@ -37,12 +37,6 @@ class PhotoCell: UICollectionViewCell {
         }
     }
     
-    private var dateFormatter: DateFormatter {
-        let df = DateFormatter()
-        df.dateStyle = .medium
-        return df
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: .zero)
         style()

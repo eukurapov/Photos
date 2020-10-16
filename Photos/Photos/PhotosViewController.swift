@@ -103,6 +103,7 @@ extension PhotosViewController: UICollectionViewDelegate {
         vc.photo = photo
         pageController.navigationItem.title = photo.name
         pageController.setViewControllers([vc], direction: .forward, animated: false)
+        navigationController?.hidesBarsOnTap = true
         navigationController?.pushViewController(pageController, animated: true)
     }
     

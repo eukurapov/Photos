@@ -12,68 +12,41 @@ class DetailViewController: UIViewController {
     var photo: Photo?
     private var image: UIImage? {
         didSet {
-            guard let image = image else {
-                imageView.image = nil
-                activityIndicator.startAnimating()
-                return
-            }
-            activityIndicator.stopAnimating()
-            imageView.image = image
-            let size = CGSize(width: boundsWidthInSafeArea, height: boundsHeightInSafeArea)
-            updateMinZoomScaleForSize(size)
-            scrollView.zoomScale = scrollView.minimumZoomScale
-            centerImageViewForSize(size)
+            imageWrapperCollection.reloadItems(at: [IndexPath(item: 0, section: 0)])
         }
     }
-    private var imageView = UIImageView()
-    private var scrollView = UIScrollView()
-    private var activityIndicator = UIActivityIndicatorView()
-    
-    private var imageViewTopConstraint: NSLayoutConstraint!
-    private var imageViewLeadingConstraint: NSLayoutConstraint!
-    private var imageViewTrailingConstraint: NSLayoutConstraint!
-    private var imageViewBottomConstraint: NSLayoutConstraint!
+    private lazy var imageWrapperCollection: UICollectionView = {
+        let flowLayout = UICollectionViewFlowLayout()
+        flowLayout.scrollDirection = .vertical
+        flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+        let collection = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        collection.isPagingEnabled = true
+        collection.showsVerticalScrollIndicator = false
+        collection.showsHorizontalScrollIndicator = false
+        collection.backgroundColor = .systemBackground
+        collection.delegate = self
+        collection.dataSource = self
+        collection.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
+        collection.register(DetailsCell.self, forCellWithReuseIdentifier: "DetailsCell")
+        collection.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Any")
+        return collection
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        parent?.navigationItem.title = photo?.name
-        parent?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share))
-        
         layout()
-        
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.startAnimating()
     }
     
     private func layout() {
-        scrollView.delegate = self
-        scrollView.addSubview(imageView)
-        view.addSubview(scrollView)
-        view.addSubview(activityIndicator)
-        
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        
-        imageViewTopConstraint = imageView.topAnchor.constraint(equalTo: scrollView.topAnchor)
-        imageViewLeadingConstraint = imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-        imageViewTrailingConstraint = imageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
-        imageViewBottomConstraint = imageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        view.addSubview(imageWrapperCollection)
+        imageWrapperCollection.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            imageViewTopConstraint,
-            imageViewLeadingConstraint,
-            imageViewTrailingConstraint,
-            imageViewBottomConstraint,
-            
-            activityIndicator.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            imageWrapperCollection.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            imageWrapperCollection.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            imageWrapperCollection.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            imageWrapperCollection.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
     }
     
@@ -99,60 +72,70 @@ class DetailViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        navigationController?.hidesBarsOnTap = true
+        parent?.navigationItem.title = photo?.name
+        parent?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share))
         fetchImage()
     }
     
-    private func updateMinZoomScaleForSize(_ size: CGSize) {
-        if let image = imageView.image {
-            let widthScale = size.width / image.size.width
-            let heightScale = size.height / image.size.height
-            let minScale = min(widthScale, heightScale)
-            
-            scrollView.minimumZoomScale = minScale
-        }
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        imageWrapperCollection.reloadData()
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate { _ in
-            let insets = self.view.safeAreaInsets
-            let size = CGSize(
-                width: size.width - insets.left - insets.right,
-                height: size.height - insets.top - insets.bottom)
-            self.updateMinZoomScaleForSize(size)
-            self.centerImageViewForSize(size)
+}
+
+extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        switch indexPath.section {
+        case 0:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath)
+            if let imgCell = cell as? ImageCell {
+                imgCell.image = image
+            }
+            return cell
+        case 1:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DetailsCell", for: indexPath)
+            if let detailsCell = cell as? DetailsCell {
+                var details = [Info]()
+                if let caption = photo?.name {
+                    details.append(("Caption", caption))
+                }
+                if let date = photo?.createdAt {
+                    details.append(("Created At", dateFormatter.string(from: date)))
+                }
+                detailsCell.info = details
+            }
+            return cell
+        default:
+            return collectionView.dequeueReusableCell(withReuseIdentifier: "Any", for: indexPath)
         }
     }
     
 }
 
-extension DetailViewController: UIScrollViewDelegate {
+extension DetailViewController: UICollectionViewDelegateFlowLayout {
     
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
-    }
-    
-    func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        centerImageViewForSize(CGSize(width: boundsWidthInSafeArea, height: boundsHeightInSafeArea))
-    }
-    
-    private func centerImageViewForSize(_ size: CGSize) {
-        let yOffset = max(0, (size.height - imageView.frame.height) / 2)
-        imageViewTopConstraint.constant = yOffset
-        imageViewBottomConstraint.constant = yOffset
-        let xOffset = max(0, (size.width - imageView.frame.width) / 2)
-        imageViewLeadingConstraint.constant = xOffset
-        imageViewTrailingConstraint.constant = xOffset
-        view.layoutIfNeeded()
-    }
-    
-    private var boundsWidthInSafeArea: CGFloat {
-        return view.bounds.size.width - view.safeAreaInsets.left - view.safeAreaInsets.right
-    }
-    
-    private var boundsHeightInSafeArea: CGFloat {
-        return view.bounds.size.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        switch indexPath.section {
+        case 0:
+            return CGSize(
+                width: view.bounds.width - view.safeAreaInsets.left - view.safeAreaInsets.right,
+                height: view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom)
+        case 1:
+            return CGSize(
+                width: view.bounds.width - view.safeAreaInsets.left - view.safeAreaInsets.right,
+                height: view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom)
+        default:
+            return .zero
+        }
     }
     
 }
