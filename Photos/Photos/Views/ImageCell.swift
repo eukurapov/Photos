@@ -43,11 +43,12 @@ class ImageCell: UITableViewCell {
         
         let doubleTapGestureRecogniser = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         doubleTapGestureRecogniser.numberOfTapsRequired = 2
+        photoView.isUserInteractionEnabled = true
         photoView.addGestureRecognizer(doubleTapGestureRecogniser)
     }
     
     @objc
-    private func imageTapped() {
+    private func imageTapped(gesture: UITapGestureRecognizer) {
         if scrollView.zoomScale == scrollView.minimumZoomScale {
             UIView.animate(withDuration: 0.5) {
                 self.scrollView.zoomScale = self.scrollView.maximumZoomScale

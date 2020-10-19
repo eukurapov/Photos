@@ -100,14 +100,8 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "DetailsCell", for: indexPath)
             if let detailsCell = cell as? DetailsCell {
-                var details = [Info]()
-                if let caption = photo?.name {
-                    details.append(("Caption", caption))
-                }
-                if let date = photo?.createdAt {
-                    details.append(("Created At", dateFormatter.string(from: date)))
-                }
-                detailsCell.info = details
+                detailsCell.caption = photo?.name ?? ""
+                detailsCell.createdAt = photo?.createdAt ?? Date()
             }
             return cell
         default:
@@ -118,7 +112,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch indexPath.row {
         case 0: return view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom
-        default: return (view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom) / 2
+        default: return UITableView.automaticDimension
         }
     }
     

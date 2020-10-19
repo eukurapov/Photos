@@ -11,18 +11,42 @@ typealias Info = (name: String, value: String)
 
 class DetailsCell: UITableViewCell {
     
-    var info = [Info]()
-    private lazy var infoTable: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.isScrollEnabled = false
-        tableView.tableHeaderView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
-        tableView.tableFooterView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
-        tableView.separatorColor = .clear
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.separatorStyle = .none
-        return tableView
+    private var captionTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.text = "Caption"
+        return label
     }()
+    private var captionLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.numberOfLines = 0
+        label.textColor = label.textColor.withAlphaComponent(0.6)
+        return label
+    }()
+    var caption: String! {
+        didSet {
+            captionLabel.text = caption
+        }
+    }
+    private var createdAtTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.text = "Created at"
+        return label
+    }()
+    private var createdAtLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.textAlignment = .right
+        label.textColor = label.textColor.withAlphaComponent(0.6)
+        return label
+    }()
+    var createdAt: Date! {
+        didSet {
+            createdAtLabel.text = dateFormatter.string(from: createdAt)
+        }
+    }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -35,45 +59,31 @@ class DetailsCell: UITableViewCell {
     }
     
     private func layout() {
-        contentView.addSubview(infoTable)
-        infoTable.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(captionTitleLabel)
+        contentView.addSubview(captionLabel)
+        contentView.addSubview(createdAtTitleLabel)
+        contentView.addSubview(createdAtLabel)
+        captionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        captionLabel.translatesAutoresizingMaskIntoConstraints = false
+        createdAtTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        createdAtLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            captionTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: contentView.topAnchor, multiplier: 1),
+            captionTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: captionTitleLabel.trailingAnchor, multiplier: 1),
             
-            infoTable.topAnchor.constraint(equalTo: contentView.topAnchor),
-            infoTable.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            infoTable.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            infoTable.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            captionLabel.topAnchor.constraint(equalToSystemSpacingBelow: captionTitleLabel.bottomAnchor, multiplier: 0.5),
+            captionLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: captionLabel.trailingAnchor, multiplier: 1),
+            
+            createdAtTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: captionLabel.bottomAnchor, multiplier: 2),
+            createdAtTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
+            contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: createdAtTitleLabel.bottomAnchor, multiplier: 1),
+            
+            createdAtLabel.centerYAnchor.constraint(equalTo: createdAtTitleLabel.centerYAnchor),
+            createdAtLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: createdAtTitleLabel.trailingAnchor, multiplier: 1),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: createdAtLabel.trailingAnchor, multiplier: 1)
         ])
-    }
-    
-}
-
-extension DetailsCell: UITableViewDelegate, UITableViewDataSource {
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return info.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .value2, reuseIdentifier: "detail")
-        let detail = info[indexPath.row]
-        var content = cell.defaultContentConfiguration()
-        content.textProperties.numberOfLines = 0
-        content.textProperties.lineBreakMode = .byWordWrapping
-        content.text = detail.name
-        content.secondaryTextProperties.numberOfLines = 0
-        content.secondaryTextProperties.lineBreakMode = .byWordWrapping
-        content.secondaryText = detail.value
-        cell.contentConfiguration = content
-        return cell
     }
     
 }
