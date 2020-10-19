@@ -56,11 +56,6 @@ class PhotosViewController: UIViewController {
         ])
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        navigationController?.hidesBarsOnTap = false
-    }
-    
     private let photoCellIdentifier: String = "PhotoCell"
     
 }
@@ -103,7 +98,6 @@ extension PhotosViewController: UICollectionViewDelegate {
         vc.photo = photo
         pageController.navigationItem.title = photo.name
         pageController.setViewControllers([vc], direction: .forward, animated: false)
-        navigationController?.hidesBarsOnTap = true
         navigationController?.pushViewController(pageController, animated: true)
     }
     

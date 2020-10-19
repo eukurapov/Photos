@@ -9,20 +9,23 @@ import UIKit
 
 typealias Info = (name: String, value: String)
 
-class DetailsCell: UICollectionViewCell {
+class DetailsCell: UITableViewCell {
     
     var info = [Info]()
     private lazy var infoTable: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .insetGrouped)
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.isScrollEnabled = false
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
+        tableView.tableFooterView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
+        tableView.separatorColor = .clear
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
         return tableView
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
                 
         layout()
     }
@@ -32,7 +35,6 @@ class DetailsCell: UICollectionViewCell {
     }
     
     private func layout() {
-        //addSubview(infoTable)
         contentView.addSubview(infoTable)
         infoTable.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -72,10 +74,6 @@ extension DetailsCell: UITableViewDelegate, UITableViewDataSource {
         content.secondaryText = detail.value
         cell.contentConfiguration = content
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Info"
     }
     
 }

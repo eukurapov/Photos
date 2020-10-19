@@ -12,24 +12,24 @@ class DetailViewController: UIViewController {
     var photo: Photo?
     private var image: UIImage? {
         didSet {
-            imageWrapperCollection.reloadItems(at: [IndexPath(item: 0, section: 0)])
+            imageWrapperCollection.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .fade)
         }
     }
-    private lazy var imageWrapperCollection: UICollectionView = {
-        let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.scrollDirection = .vertical
-        flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        let collection = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
-        collection.isPagingEnabled = true
-        collection.showsVerticalScrollIndicator = false
-        collection.showsHorizontalScrollIndicator = false
-        collection.backgroundColor = .systemBackground
-        collection.delegate = self
-        collection.dataSource = self
-        collection.register(ImageCell.self, forCellWithReuseIdentifier: "ImageCell")
-        collection.register(DetailsCell.self, forCellWithReuseIdentifier: "DetailsCell")
-        collection.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "Any")
-        return collection
+    private lazy var imageWrapperCollection: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.isPagingEnabled = true
+        tableView.showsVerticalScrollIndicator = false
+        tableView.showsHorizontalScrollIndicator = false
+        tableView.allowsSelection = false
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
+        tableView.tableFooterView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 0.0, height: Double.leastNormalMagnitude))
+        tableView.separatorColor = .clear
+        tableView.backgroundColor = .systemBackground
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(ImageCell.self, forCellReuseIdentifier: "ImageCell")
+        tableView.register(DetailsCell.self, forCellReuseIdentifier: "DetailsCell")
+        return tableView
     }()
     
     override func viewDidLoad() {
@@ -83,26 +83,22 @@ class DetailViewController: UIViewController {
     
 }
 
-extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
     
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        switch indexPath.section {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch indexPath.row {
         case 0:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ImageCell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
             if let imgCell = cell as? ImageCell {
-                imgCell.image = image
+                imgCell.photo = image
             }
             return cell
         case 1:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DetailsCell", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "DetailsCell", for: indexPath)
             if let detailsCell = cell as? DetailsCell {
                 var details = [Info]()
                 if let caption = photo?.name {
@@ -115,26 +111,14 @@ extension DetailViewController: UICollectionViewDelegate, UICollectionViewDataSo
             }
             return cell
         default:
-            return collectionView.dequeueReusableCell(withReuseIdentifier: "Any", for: indexPath)
+            return UITableViewCell()
         }
     }
     
-}
-
-extension DetailViewController: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        switch indexPath.section {
-        case 0:
-            return CGSize(
-                width: view.bounds.width - view.safeAreaInsets.left - view.safeAreaInsets.right,
-                height: view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom)
-        case 1:
-            return CGSize(
-                width: view.bounds.width - view.safeAreaInsets.left - view.safeAreaInsets.right,
-                height: view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom)
-        default:
-            return .zero
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch indexPath.row {
+        case 0: return view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom
+        default: return (view.bounds.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom) / 2
         }
     }
     

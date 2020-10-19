@@ -7,24 +7,24 @@
 
 import UIKit
 
-class ImageCell: UICollectionViewCell {
+class ImageCell: UITableViewCell {
     
-    var image: UIImage? {
+    var photo: UIImage? {
         didSet {
-            guard let image = image else {
-                imageView.image = nil
+            guard let photo = photo else {
+                photoView.image = nil
                 activityIndicator.startAnimating()
                 return
             }
             activityIndicator.stopAnimating()
-            imageView.image = image
+            photoView.image = photo
             let size = CGSize(width: boundsWidthInSafeArea, height: boundsHeightInSafeArea)
             updateMinZoomScaleForSize(size)
             scrollView.zoomScale = scrollView.minimumZoomScale
             centerImageViewForSize(size)
         }
     }
-    private var imageView = UIImageView()
+    private var photoView = UIImageView()
     private var scrollView = UIScrollView()
     private var activityIndicator = UIActivityIndicatorView()
     
@@ -33,48 +33,65 @@ class ImageCell: UICollectionViewCell {
     var imageViewTrailingConstraint: NSLayoutConstraint!
     var imageViewBottomConstraint: NSLayoutConstraint!
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         layout()
         
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
+        
+        let doubleTapGestureRecogniser = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
+        doubleTapGestureRecogniser.numberOfTapsRequired = 2
+        photoView.addGestureRecognizer(doubleTapGestureRecogniser)
+    }
+    
+    @objc
+    private func imageTapped() {
+        if scrollView.zoomScale == scrollView.minimumZoomScale {
+            UIView.animate(withDuration: 0.5) {
+                self.scrollView.zoomScale = self.scrollView.maximumZoomScale
+            }
+        } else {
+            UIView.animate(withDuration: 0.5) {
+                self.scrollView.zoomScale = self.scrollView.minimumZoomScale
+            }
+        }
     }
     
     private func layout() {
         scrollView.delegate = self
-        scrollView.addSubview(imageView)
-        addSubview(scrollView)
-        addSubview(activityIndicator)
+        scrollView.addSubview(photoView)
+        contentView.addSubview(scrollView)
+        contentView.addSubview(activityIndicator)
         
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        photoView.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         
-        imageViewTopConstraint = imageView.topAnchor.constraint(equalTo: scrollView.topAnchor)
-        imageViewLeadingConstraint = imageView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-        imageViewTrailingConstraint = imageView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
-        imageViewBottomConstraint = imageView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        imageViewTopConstraint = photoView.topAnchor.constraint(equalTo: scrollView.topAnchor)
+        imageViewLeadingConstraint = photoView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
+        imageViewTrailingConstraint = photoView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor)
+        imageViewBottomConstraint = photoView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            scrollView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             imageViewTopConstraint,
             imageViewLeadingConstraint,
             imageViewTrailingConstraint,
             imageViewBottomConstraint,
             
-            activityIndicator.centerXAnchor.constraint(equalTo: centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
     }
     
     private func updateMinZoomScaleForSize(_ size: CGSize) {
-        if let image = imageView.image {
+        if let image = photoView.image {
             let widthScale = size.width / image.size.width
             let heightScale = size.height / image.size.height
             let minScale = min(widthScale, heightScale)
@@ -92,7 +109,7 @@ class ImageCell: UICollectionViewCell {
 extension ImageCell: UIScrollViewDelegate {
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imageView
+        return photoView
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -100,10 +117,10 @@ extension ImageCell: UIScrollViewDelegate {
     }
     
     private func centerImageViewForSize(_ size: CGSize) {
-        let yOffset = max(0, (size.height - imageView.frame.height) / 2)
+        let yOffset = max(0, (size.height - photoView.frame.height) / 2)
         imageViewTopConstraint.constant = yOffset
         imageViewBottomConstraint.constant = yOffset
-        let xOffset = max(0, (size.width - imageView.frame.width) / 2)
+        let xOffset = max(0, (size.width - photoView.frame.width) / 2)
         imageViewLeadingConstraint.constant = xOffset
         imageViewTrailingConstraint.constant = xOffset
         layoutIfNeeded()
