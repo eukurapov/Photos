@@ -153,6 +153,8 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
         guard let detailVC = viewController as? DetailViewController, let currentPhoto = detailVC.photo else { return nil }
         if let index = photos.firstIndex(of: currentPhoto) {
             if index < photos.count - 1 {
+                collectionView(photosCollection, prefetchItemsAt: [IndexPath(item: index + 2, section: 0)])
+                photosCollection.scrollToItem(at: IndexPath(item: index + 1, section: 0), at: .bottom, animated: false)
                 let photo = photos[index + 1]
                 let vc = DetailViewController()
                 vc.photo = photo
@@ -167,7 +169,6 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
 
 extension PhotosViewController: UICollectionViewDataSourcePrefetching {
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        print(indexPaths)
         if hasNext && indexPaths.contains(where: isLoadingCell) {
             loadData()
         }
