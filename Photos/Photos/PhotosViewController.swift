@@ -9,6 +9,8 @@ import UIKit
 
 class PhotosViewController: UIViewController {
     
+    private var photosRequest: FBRequest<Photo>!
+    
     var album: Album?
     private var photos = [Photo]()
     private lazy var photosCollection: UICollectionView = {
@@ -19,29 +21,50 @@ class PhotosViewController: UIViewController {
         cv.backgroundColor = .systemBackground
         cv.delegate = self
         cv.dataSource = self
+        cv.prefetchDataSource = self
         cv.register(PhotoCell.self, forCellWithReuseIdentifier: photoCellIdentifier)
         cv.alwaysBounceVertical = true
         return cv
     }()
+    
+    private var hasNext: Bool {
+        return photosRequest.hasNext
+    }
+    
+    private var isFetchInProgress: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         title = album?.name
         
-        loadData()
+        if let album = album {
+            photosRequest = PhotoService.shared.photosRequestForAlbum(album)
+            loadData()
+        }
         layout()
     }
     
     private func loadData() {
-        guard let album = album else { return }
-        PhotoService.shared.fetchPhotosForAlbum(album) { [weak self] result in
-            switch result {
-            case .success(let photos):
-                self?.photos = photos
-                self?.photosCollection.reloadData()
-            case .failure(let error):
-                print(error)
+        guard !isFetchInProgress else { return }
+        isFetchInProgress = true
+        
+        photosRequest.fetch { [weak self] result in
+            if let self = self {
+                switch result {
+                case .success(let photos):
+                    let isFisrtPage = self.photos.isEmpty
+                    self.photos.append(contentsOf: photos)
+                    if isFisrtPage {
+                        self.photosCollection.reloadData()
+                    } else {
+                        let indexPathsToReload = self.calculateIndexPathsToReload(from: photos)
+                        self.photosCollection.reloadItems(at: self.visibleIndexPathsToReload(intersecting: indexPathsToReload))
+                    }
+                case .failure(let error):
+                    print(error)
+                }
+                self.isFetchInProgress = false
             }
         }
     }
@@ -63,13 +86,21 @@ class PhotosViewController: UIViewController {
 extension PhotosViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return photos.count
+        if hasNext {
+            return photos.count + 1
+        } else {
+            return photos.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = photosCollection.dequeueReusableCell(withReuseIdentifier: photoCellIdentifier, for: indexPath)
         if let photoCell = cell as? PhotoCell {
-            photoCell.photo = photos[indexPath.item]
+            if indexPath.item < photos.count {
+                photoCell.photo = photos[indexPath.item]
+            } else {
+                photoCell.photo = nil
+            }
         }
         return cell
     }
@@ -127,8 +158,37 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
                 vc.photo = photo
                 return vc
             }
+            // TODO: - Cover case when photo is not loaded yet -- request load data and load photo once data is loaded
         }
         return nil
     }
     
+}
+
+extension PhotosViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        print(indexPaths)
+        if hasNext && indexPaths.contains(where: isLoadingCell) {
+            loadData()
+        }
+    }
+}
+
+private extension PhotosViewController {
+    
+    func isLoadingCell(for indexPath: IndexPath) -> Bool {
+        return indexPath.item >= photos.count
+    }
+
+    func visibleIndexPathsToReload(intersecting indexPaths: [IndexPath]) -> [IndexPath] {
+        let indexPathsForVisibleItems = photosCollection.indexPathsForVisibleItems
+        let indexPathsIntersection = Set(indexPathsForVisibleItems).intersection(indexPaths)
+        return Array(indexPathsIntersection)
+    }
+    
+    func calculateIndexPathsToReload(from newPhotos: [Photo]) -> [IndexPath] {
+        let startIndex = photos.count - newPhotos.count
+        let endIndex = startIndex + newPhotos.count
+        return (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
+    }
 }

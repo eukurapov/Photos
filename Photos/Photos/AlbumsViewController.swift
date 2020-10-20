@@ -11,6 +11,8 @@ import FBSDKLoginKit
 
 class AlbumsViewController: UIViewController {
     
+    private var albumsRequest: FBRequest<Album>!
+    
     private var albums = [Album]()
     private lazy var albumsCollection: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
@@ -31,28 +33,53 @@ class AlbumsViewController: UIViewController {
         item.isEnabled = false
         return item
     }
+    
+    private var hasNext: Bool {
+        return albumsRequest.hasNext
+    }
+    
+    private var isFetchInProgress: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Albums"
         
-        if let token = AccessToken.current, !token.isExpired {
-            getData()
-            layout()
+        if PhotoService.shared.isAuthorised {
+            configure()
         } else {
             login()
         }
     }
     
-    private func getData() {
-        PhotoService.shared.fetchAlbums { [weak self] result in
-            switch result {
-            case .success(let albums):
-                self?.albums = albums
-                self?.albumsCollection.reloadData()
-            case .failure(let error):
-                print("-- Albums fetching error --\n\(error.localizedDescription)")
+    private func configure() {
+        albumsRequest = PhotoService.shared.albumsRequest()
+        if albumsRequest != nil {
+            loadData()
+        }
+        layout()
+    }
+    
+    private func loadData() {
+        guard !isFetchInProgress else { return }
+        isFetchInProgress = true
+        
+        albumsRequest.fetch { [weak self] result in
+            if let self = self {
+                switch result {
+                case .success(let albums):
+                    let isFisrtPage = self.albums.isEmpty
+                    self.albums.append(contentsOf: albums)
+                    if isFisrtPage {
+                        self.albumsCollection.reloadData()
+                    } else {
+                        let indexPathsToReload = self.calculateIndexPathsToReload(from: albums)
+                        self.albumsCollection.reloadItems(at: self.visibleIndexPathsToReload(intersecting: indexPathsToReload))
+                    }
+                case .failure(let error):
+                    print("-- Albums fetching error --\n\(error)")
+                }
+                self.isFetchInProgress = false
             }
         }
     }
@@ -84,13 +111,21 @@ class AlbumsViewController: UIViewController {
 extension AlbumsViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return albums.count
+        if hasNext {
+            return albums.count + 1
+        } else {
+            return albums.count
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: albumCellIdentifier, for: indexPath)
         if let albumCell = cell as? AlbumCell {
-            albumCell.album = albums[indexPath.item]
+            if indexPath.item < albums.count {
+                albumCell.album = albums[indexPath.item]
+            } else {
+                albumCell.album = nil
+            }
         }
         return cell
     }
@@ -124,8 +159,7 @@ extension AlbumsViewController: LoginButtonDelegate {
         guard result?.isCancelled == false else { return }
         guard result?.grantedPermissions.contains(PhotoService.fbPhotoPermission) ?? false else { return }
         dismiss(animated: true) { [weak self] in
-            self?.getData()
-            self?.layout()
+            self?.configure()
         }
     }
     
@@ -135,4 +169,31 @@ extension AlbumsViewController: LoginButtonDelegate {
         login()
     }
     
+}
+
+extension AlbumsViewController: UICollectionViewDataSourcePrefetching {
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        if hasNext && indexPaths.contains(where: isLoadingCell) {
+            loadData()
+        }
+    }
+}
+
+private extension AlbumsViewController {
+    
+    func isLoadingCell(for indexPath: IndexPath) -> Bool {
+        return indexPath.item >= albums.count
+    }
+
+    func visibleIndexPathsToReload(intersecting indexPaths: [IndexPath]) -> [IndexPath] {
+        let indexPathsForVisibleItems = albumsCollection.indexPathsForVisibleItems
+        let indexPathsIntersection = Set(indexPathsForVisibleItems).intersection(indexPaths)
+        return Array(indexPathsIntersection)
+    }
+    
+    func calculateIndexPathsToReload(from newAlbums: [Album]) -> [IndexPath] {
+        let startIndex = albums.count - newAlbums.count
+        let endIndex = startIndex + newAlbums.count
+        return (startIndex..<endIndex).map { IndexPath(row: $0, section: 0) }
+    }
 }

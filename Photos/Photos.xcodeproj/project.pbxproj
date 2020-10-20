@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4400F757253F372F0000F141 /* FBRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4400F756253F372F0000F141 /* FBRequest.swift */; };
 		440FCC312535EBD70011EED3 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC302535EBD70011EED3 /* FacebookCore */; };
 		440FCC332535EBD70011EED3 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC322535EBD70011EED3 /* FacebookLogin */; };
 		440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440FCC352535EDCA0011EED3 /* LoginViewController.swift */; };
@@ -27,6 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4400F756253F372F0000F141 /* FBRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBRequest.swift; sourceTree = "<group>"; };
 		440FCC352535EDCA0011EED3 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		44296427253746A700080B5F /* PhotoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoService.swift; sourceTree = "<group>"; };
 		445F97A6253495CA00D9C102 /* Photos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Photos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -63,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				44296427253746A700080B5F /* PhotoService.swift */,
+				4400F756253F372F0000F141 /* FBRequest.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -217,6 +220,7 @@
 				445F97AE253495CA00D9C102 /* AlbumsViewController.swift in Sources */,
 				445F97AA253495CA00D9C102 /* AppDelegate.swift in Sources */,
 				445F97D825349F0D00D9C102 /* AlbumCell.swift in Sources */,
+				4400F757253F372F0000F141 /* FBRequest.swift in Sources */,
 				440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */,
 				445F97CF25349C1C00D9C102 /* Album.swift in Sources */,
 			);

@@ -10,6 +10,11 @@ import FBSDKCoreKit
 
 struct FBResult<Element>: Codable where Element: Codable {
     var data: [Element]
+    var paging: Paging
+    
+    struct Paging: Codable {
+        var next: String?
+    }
 }
 
 enum ServiceError: Error {
@@ -24,29 +29,37 @@ class PhotoService {
     
     static let fbPhotoPermission = "user_photos"
     
-    private func fetchRequest<T>(_ request: GraphRequest, completion: @escaping (Result<[T],Error>) -> Void) where T: Codable {
-        request.start { connection, result, error in
-            if let error = error {
-                completion(Result.failure(error))
-                return
-            }
-            guard let result = result else { return }
-            DispatchQueue.global(qos: .userInteractive).async {
-                if let data = try? JSONSerialization.data(withJSONObject: result, options: .prettyPrinted) {
-                    let decoder = JSONDecoder()
-                    decoder.dateDecodingStrategy = .iso8601
-                    if let fbResult = try? decoder.decode(FBResult<T>.self, from: data) {
-                        DispatchQueue.main.async {
-                            completion(Result.success(fbResult.data))
-                        }
-                        return
-                    }
-                }
-                DispatchQueue.main.async {
-                    completion(Result.failure(ServiceError.parsing))
-                }
-            }
+    var isAuthorised: Bool {
+        if let token = AccessToken.current, !token.isExpired {
+            return true
+        } else {
+            return false
         }
+    }
+    
+    func albumsRequest() -> FBRequest<Album>? {
+        guard let userId = AccessToken.current?.userID else { return nil }
+        let request = GraphRequest(
+            graphPath: "/\(userId)/albums",
+            parameters: ["fields": "id,name,cover_photo,created_time"]
+        )
+        return FBRequest<Album>(request: request)
+    }
+    
+    func photosRequestForAlbum(_ album: Album) -> FBRequest<Photo> {
+        let request = GraphRequest(
+            graphPath: "/\(album.id)/photos",
+            parameters: ["fields": "id,name,created_time"]
+        )
+        return FBRequest<Photo>(request: request)
+    }
+    
+    func fetchCoverImageForAlbum(_ album: Album, completion: @escaping (Result<UIImage,Error>) -> Void) {
+        fetchImageForId(album.id, type: "album", completion: completion)
+    }
+    
+    func fetchAlbumImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
+        fetchImageForId(photo.id, completion: completion)
     }
     
     private func fetchImageForId(_ id: String, type: String = "normal", completion: @escaping (Result<UIImage,Error>) -> Void) {
@@ -81,52 +94,6 @@ class PhotoService {
                 }
             }
             task.resume()
-        }
-    }
-    
-    /**
-     Fetching albums from Facebook.
-     - Parameter completion: Completion handler running in main thread.
-    */
-    func fetchAlbums(completion: @escaping (Result<[Album],Error>) -> Void) {
-        guard let userId = AccessToken.current?.userID else {
-            completion(Result.failure(ServiceError.notAuthorised))
-            return
-        }
-        let request = GraphRequest(
-            graphPath: "/\(userId)/albums",
-            parameters: ["fields": "id,name,cover_photo,created_time"]
-        )
-        fetchRequest(request, completion: completion)
-    }
-    
-    /**
-     Fetching photos from selected album from Facebook.
-     - Parameter completion: Completion handler running in main thread.
-    */
-    func fetchPhotosForAlbum(_ album: Album, completion: @escaping (Result<[Photo],Error>) -> Void) {
-        guard let _ = AccessToken.current else {
-            completion(Result.failure(ServiceError.notAuthorised))
-            return
-        }
-        let request = GraphRequest(
-            graphPath: "/\(album.id)/photos",
-            parameters: ["fields": "id,name,created_time"]
-        )
-        fetchRequest(request, completion: completion)
-    }
-    
-    func fetchCoverImageForAlbum(_ album: Album, completion: @escaping (Result<UIImage,Error>) -> Void) {
-        fetchImageForId(album.id, type: "album", completion: completion)
-    }
-    
-    func fetchAlbumImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
-        fetchImageForId(photo.id, completion: completion)
-    }
-    
-    private func sendResultToMainQueue<T>(_ result: Result<T,Error>, completion: @escaping (Result<T,Error>) -> Void) {
-        DispatchQueue.main.async {
-            completion(result)
         }
     }
     
