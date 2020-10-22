@@ -14,30 +14,42 @@ class DetailsCell: UITableViewCell {
     private var captionTitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.text = "Caption"
         return label
     }()
     private var captionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.textColor = label.textColor.withAlphaComponent(0.6)
         return label
     }()
     var caption: String! {
         didSet {
-            captionLabel.text = caption
+            if caption.isEmpty {
+                captionTitleLabel.isHidden = true
+                captionLabel.isHidden = true
+            } else {
+                captionTitleLabel.isHidden = false
+                captionLabel.isHidden = false
+                captionTitleLabel.text = "Caption"
+                captionLabel.text = caption
+            }
         }
     }
     private var createdAtTitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.text = "Created at"
         return label
     }()
     private var createdAtLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .right
         label.textColor = label.textColor.withAlphaComponent(0.6)
         return label

@@ -49,8 +49,10 @@ class PhotoCell: UICollectionViewCell {
     
     private func style() {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .body)
+        nameLabel.adjustsFontForContentSizeCategory = true
         nameLabel.numberOfLines = 3
         createdAtLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        createdAtLabel.adjustsFontForContentSizeCategory = true
         createdAtLabel.alpha = 0.7
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true

@@ -45,7 +45,9 @@ class AlbumCell: UICollectionViewCell {
     
     private func layout() {
         nameLabel.font = UIFont.preferredFont(forTextStyle: .headline)
+        nameLabel.adjustsFontForContentSizeCategory = true
         createdAtLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        createdAtLabel.adjustsFontForContentSizeCategory = true
         createdAtLabel.alpha = 0.7
         
         translatesAutoresizingMaskIntoConstraints = false
