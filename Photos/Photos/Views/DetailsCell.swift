@@ -6,8 +6,7 @@
 //
 
 import UIKit
-
-typealias Info = (name: String, value: String)
+import MapKit
 
 class DetailsCell: UITableViewCell {
     
@@ -39,6 +38,7 @@ class DetailsCell: UITableViewCell {
             }
         }
     }
+    
     private var createdAtTitleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
@@ -60,6 +60,32 @@ class DetailsCell: UITableViewCell {
         }
     }
     
+    private var map: MKMapView = {
+        let mapView = MKMapView()
+        mapView.setCameraZoomRange(
+            MKMapView.CameraZoomRange(maxCenterCoordinateDistance: 10000),
+            animated: false)
+        mapView.layer.cornerRadius = 10
+        return mapView
+    }()
+    private var mapHeight: NSLayoutConstraint!
+    var position: (lat: Double, lon: Double)? {
+        didSet {
+            if let position = position {
+                let annotation = MKPointAnnotation()
+                annotation.coordinate = CLLocationCoordinate2D(latitude: position.lat, longitude: position.lon)
+                map.removeAnnotations(map.annotations)
+                map.addAnnotation(annotation)
+                map.setCenter(annotation.coordinate, animated: false)
+                map.isHidden = false
+                mapHeight.constant = defaultMapHeight
+            } else {
+                map.isHidden = true
+                mapHeight.constant = 0
+            }
+        }
+    }
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
                 
@@ -75,10 +101,13 @@ class DetailsCell: UITableViewCell {
         contentView.addSubview(captionLabel)
         contentView.addSubview(createdAtTitleLabel)
         contentView.addSubview(createdAtLabel)
+        contentView.addSubview(map)
         captionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtLabel.translatesAutoresizingMaskIntoConstraints = false
+        map.translatesAutoresizingMaskIntoConstraints = false
+        mapHeight = map.heightAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
             captionTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: contentView.topAnchor, multiplier: 1),
             captionTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
@@ -90,12 +119,18 @@ class DetailsCell: UITableViewCell {
             
             createdAtTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: captionLabel.bottomAnchor, multiplier: 2),
             createdAtTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
-            contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: createdAtTitleLabel.bottomAnchor, multiplier: 1),
             
             createdAtLabel.centerYAnchor.constraint(equalTo: createdAtTitleLabel.centerYAnchor),
             createdAtLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: createdAtTitleLabel.trailingAnchor, multiplier: 1),
-            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: createdAtLabel.trailingAnchor, multiplier: 1)
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: createdAtLabel.trailingAnchor, multiplier: 1),
+            
+            map.topAnchor.constraint(equalToSystemSpacingBelow: createdAtLabel.bottomAnchor, multiplier: 1),
+            mapHeight,
+            contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: map.bottomAnchor, multiplier: 1),
+            map.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: map.trailingAnchor, multiplier: 1),
         ])
     }
     
+    private let defaultMapHeight: CGFloat = 200
 }

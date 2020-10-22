@@ -103,6 +103,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
             if let detailsCell = cell as? DetailsCell {
                 detailsCell.caption = photo?.name ?? ""
                 detailsCell.createdAt = photo?.createdAt ?? Date()
+                if let place = photo?.place {
+                    detailsCell.position = (lat: place.location.latitude, lon: place.location.longitude)
+                }
             }
             return cell
         default:

@@ -49,7 +49,7 @@ class PhotoService {
     func photosRequestForAlbum(_ album: Album) -> FBRequest<Photo> {
         let request = GraphRequest(
             graphPath: "/\(album.id)/photos",
-            parameters: ["fields": "id,name,created_time"]
+            parameters: ["fields": "id,name,created_time,place,from"]
         )
         return FBRequest<Photo>(request: request)
     }
