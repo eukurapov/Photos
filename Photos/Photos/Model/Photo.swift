@@ -29,11 +29,11 @@ struct Photo: Codable, Equatable {
     
     struct Place: Codable {
         var name: String
-        var location: Location
+        var location: Location?
         
         struct Location: Codable {
-            var country: String
-            var city: String
+            var country: String?
+            var city: String?
             var latitude: Double
             var longitude: Double
         }

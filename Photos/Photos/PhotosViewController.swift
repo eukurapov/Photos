@@ -59,7 +59,7 @@ class PhotosViewController: UIViewController {
                         self.photosCollection.reloadData()
                     } else {
                         let indexPathsToReload = self.calculateIndexPathsToReload(from: photos)
-                        self.photosCollection.reloadItems(at: self.visibleIndexPathsToReload(intersecting: indexPathsToReload))
+                        self.photosCollection.insertItems(at: indexPathsToReload)
                     }
                 case .failure(let error):
                     print(error)
