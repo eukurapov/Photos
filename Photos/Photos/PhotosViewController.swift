@@ -160,7 +160,6 @@ extension PhotosViewController: UIPageViewControllerDataSource, UIPageViewContro
                 vc.photo = photo
                 return vc
             }
-            // TODO: - Cover case when photo is not loaded yet -- request load data and load photo once data is loaded
         }
         return nil
     }
