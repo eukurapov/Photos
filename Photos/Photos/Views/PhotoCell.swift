@@ -23,7 +23,7 @@ class PhotoCell: UICollectionViewCell {
             guard let photo = self.photo else { return }
             nameLabel.text = photo.name
             createdAtLabel.text = dateFormatter.string(from: photo.createdAt)
-            PhotoService.shared.fetchAlbumImageForPhoto(photo) { [weak self] result in
+            PhotoService.shared.fetchImageForPhoto(photo) { [weak self] result in
                 switch result {
                 case .success(let image):
                     self?.activityIndicator.stopAnimating()

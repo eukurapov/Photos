@@ -10,13 +10,6 @@ import MapKit
 
 class DetailsCell: UITableViewCell {
     
-    private var captionTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.preferredFont(forTextStyle: .body)
-        label.adjustsFontForContentSizeCategory = true
-        label.text = "Caption"
-        return label
-    }()
     private var captionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .body)
@@ -27,15 +20,7 @@ class DetailsCell: UITableViewCell {
     }()
     var caption: String! {
         didSet {
-            if caption.isEmpty {
-                captionTitleLabel.isHidden = true
-                captionLabel.isHidden = true
-            } else {
-                captionTitleLabel.isHidden = false
-                captionLabel.isHidden = false
-                captionTitleLabel.text = "Caption"
-                captionLabel.text = caption
-            }
+            captionLabel.text = caption
         }
     }
     
@@ -57,6 +42,18 @@ class DetailsCell: UITableViewCell {
     var createdAt: Date! {
         didSet {
             createdAtLabel.text = dateFormatter.string(from: createdAt)
+        }
+    }
+    
+    private var likeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .body)
+        label.adjustsFontForContentSizeCategory = true
+        return label
+    }()
+    var likesNumber: Int = 0 {
+        didSet {
+            likeLabel.text = likesNumber > 0 ? "💙 \(likesNumber)" : "no 💙 yet"
         }
     }
     
@@ -97,23 +94,23 @@ class DetailsCell: UITableViewCell {
     }
     
     private func layout() {
-        contentView.addSubview(captionTitleLabel)
+        contentView.addSubview(likeLabel)
         contentView.addSubview(captionLabel)
         contentView.addSubview(createdAtTitleLabel)
         contentView.addSubview(createdAtLabel)
         contentView.addSubview(map)
-        captionTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        likeLabel.translatesAutoresizingMaskIntoConstraints = false
         captionLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         createdAtLabel.translatesAutoresizingMaskIntoConstraints = false
         map.translatesAutoresizingMaskIntoConstraints = false
         mapHeight = map.heightAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
-            captionTitleLabel.topAnchor.constraint(equalToSystemSpacingBelow: contentView.topAnchor, multiplier: 1),
-            captionTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
-            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: captionTitleLabel.trailingAnchor, multiplier: 1),
+            likeLabel.topAnchor.constraint(equalToSystemSpacingBelow: contentView.topAnchor, multiplier: 1),
+            likeLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: likeLabel.trailingAnchor, multiplier: 1),
             
-            captionLabel.topAnchor.constraint(equalToSystemSpacingBelow: captionTitleLabel.bottomAnchor, multiplier: 0.5),
+            captionLabel.topAnchor.constraint(equalToSystemSpacingBelow: likeLabel.bottomAnchor, multiplier: 0.5),
             captionLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1),
             contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: captionLabel.trailingAnchor, multiplier: 1),
             

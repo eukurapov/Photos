@@ -49,7 +49,7 @@ class PhotoService {
     func photosRequestForAlbum(_ album: Album) -> FBRequest<Photo> {
         let request = GraphRequest(
             graphPath: "/\(album.id)/photos",
-            parameters: ["fields": "id,name,created_time,place,from"]
+            parameters: ["fields": "id,name,created_time,place,from,likes.summary(true)"]
         )
         return FBRequest<Photo>(request: request)
     }
@@ -58,7 +58,7 @@ class PhotoService {
         fetchImageForId(album.id, type: "album", completion: completion)
     }
     
-    func fetchAlbumImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
+    func fetchImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
         fetchImageForId(photo.id, completion: completion)
     }
     

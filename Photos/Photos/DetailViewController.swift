@@ -53,7 +53,7 @@ class DetailViewController: UIViewController {
     private func fetchImage() {
         guard let photo = self.photo else { return }
         guard image == nil else { return }
-        PhotoService.shared.fetchAlbumImageForPhoto(photo) { [weak self] result in
+        PhotoService.shared.fetchImageForPhoto(photo) { [weak self] result in
             switch result {
             case .success(let image):
                 self?.image = image
@@ -105,6 +105,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource {
                 detailsCell.createdAt = photo?.createdAt ?? Date()
                 if let place = photo?.place {
                     detailsCell.position = (lat: place.location.latitude, lon: place.location.longitude)
+                }
+                if let likes = photo?.likes {
+                    detailsCell.likesNumber = likes.summary.total
                 }
             }
             return cell
