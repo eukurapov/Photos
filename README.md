@@ -1,6 +1,6 @@
 # Photos
 
-App shows albums from _some_service_ using its API.
+App shows albums and photos from Facebook using its API.
 
 * Swift
 * UIKit
