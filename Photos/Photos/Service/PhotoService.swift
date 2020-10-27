@@ -29,6 +29,8 @@ class PhotoService {
     
     static let fbPhotoPermission = "user_photos"
     
+    private var imageCache = Cache<URL, UIImage>()
+    
     var isAuthorised: Bool {
         if let token = AccessToken.current, !token.isExpired {
             return true
@@ -69,7 +71,13 @@ class PhotoService {
         }
         let path = "https://graph.facebook.com/\(id)/picture?type=\(type)&access_token=\(token)"
         if let url = URL(string: path) {
-            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let image = imageCache.value(forKey: url) {
+                DispatchQueue.main.async {
+                    completion(Result.success(image))
+                }
+                return
+            }
+            let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
                 if let error = error {
                     DispatchQueue.main.async {
                         completion(Result.failure(error))
@@ -84,6 +92,7 @@ class PhotoService {
                     return
                 }
                 if let data = data, let image = UIImage(data: data) {
+                    self?.imageCache.insert(image, forKey: url)
                     DispatchQueue.main.async {
                         completion(Result.success(image))
                     }

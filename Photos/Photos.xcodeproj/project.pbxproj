@@ -11,6 +11,7 @@
 		440FCC312535EBD70011EED3 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC302535EBD70011EED3 /* FacebookCore */; };
 		440FCC332535EBD70011EED3 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC322535EBD70011EED3 /* FacebookLogin */; };
 		440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440FCC352535EDCA0011EED3 /* LoginViewController.swift */; };
+		4427BE182548566100F6658C /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4427BE172548566000F6658C /* Cache.swift */; };
 		44296428253746A700080B5F /* PhotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44296427253746A700080B5F /* PhotoService.swift */; };
 		445F97AA253495CA00D9C102 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445F97A9253495CA00D9C102 /* AppDelegate.swift */; };
 		445F97AE253495CA00D9C102 /* AlbumsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445F97AD253495CA00D9C102 /* AlbumsViewController.swift */; };
@@ -30,6 +31,7 @@
 /* Begin PBXFileReference section */
 		4400F756253F372F0000F141 /* FBRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBRequest.swift; sourceTree = "<group>"; };
 		440FCC352535EDCA0011EED3 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		4427BE172548566000F6658C /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		44296427253746A700080B5F /* PhotoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoService.swift; sourceTree = "<group>"; };
 		445F97A6253495CA00D9C102 /* Photos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Photos.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		445F97A9253495CA00D9C102 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4427BE152548562D00F6658C /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				440FCC352535EDCA0011EED3 /* LoginViewController.swift */,
+				445F97AD253495CA00D9C102 /* AlbumsViewController.swift */,
+				445F97E22534BA9E00D9C102 /* PhotosViewController.swift */,
+				445F97E52534C06900D9C102 /* DetailViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		4427BE162548564900F6658C /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				4427BE172548566000F6658C /* Cache.swift */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
 		442964262537466E00080B5F /* Service */ = {
 			isa = PBXGroup;
 			children = (
@@ -89,15 +110,12 @@
 		445F97A8253495CA00D9C102 /* Photos */ = {
 			isa = PBXGroup;
 			children = (
+				4427BE162548564900F6658C /* Cache */,
+				4427BE152548562D00F6658C /* ViewControllers */,
 				442964262537466E00080B5F /* Service */,
 				445F97CD25349C0C00D9C102 /* Model */,
 				445F97D625349ED900D9C102 /* Views */,
 				445F97C02534981600D9C102 /* Supportive Files */,
-				440FCC352535EDCA0011EED3 /* LoginViewController.swift */,
-				445F97AD253495CA00D9C102 /* AlbumsViewController.swift */,
-				445F97E22534BA9E00D9C102 /* PhotosViewController.swift */,
-				445F97E52534C06900D9C102 /* DetailViewController.swift */,
-				44D15AF12539F36F007F0CE7 /* Utils.swift */,
 			);
 			path = Photos;
 			sourceTree = "<group>";
@@ -105,6 +123,7 @@
 		445F97C02534981600D9C102 /* Supportive Files */ = {
 			isa = PBXGroup;
 			children = (
+				44D15AF12539F36F007F0CE7 /* Utils.swift */,
 				445F97A9253495CA00D9C102 /* AppDelegate.swift */,
 				445F97B2253495CC00D9C102 /* Assets.xcassets */,
 				445F97B4253495CC00D9C102 /* LaunchScreen.storyboard */,
@@ -210,6 +229,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				445F97E62534C06900D9C102 /* DetailViewController.swift in Sources */,
+				4427BE182548566100F6658C /* Cache.swift in Sources */,
 				44296428253746A700080B5F /* PhotoService.swift in Sources */,
 				44D15AEC2539B6FE007F0CE7 /* ImageCell.swift in Sources */,
 				445F97E02534B9F200D9C102 /* PhotoCell.swift in Sources */,

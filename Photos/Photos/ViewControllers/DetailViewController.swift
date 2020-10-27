@@ -12,7 +12,9 @@ class DetailViewController: UIViewController {
     var photo: Photo?
     private var image: UIImage? {
         didSet {
-            imageWrapperCollection.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .fade)
+            if view.window != nil {
+                imageWrapperCollection.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .fade)
+            }
         }
     }
     private lazy var imageWrapperCollection: UITableView = {
