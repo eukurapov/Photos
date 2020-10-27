@@ -53,11 +53,22 @@ class AlbumsViewController: UIViewController {
     }
     
     private func configure() {
+        refresh()
+        layout()
+        configureRefreshControl()
+    }
+    
+    private func configureRefreshControl() {
+        albumsCollection.refreshControl = UIRefreshControl()
+        albumsCollection.refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
+    }
+    
+    @objc
+    private func refresh() {
         albumsRequest = PhotoService.shared.albumsRequest()
         if albumsRequest != nil {
             loadData()
         }
-        layout()
     }
     
     private func loadData() {
@@ -68,6 +79,9 @@ class AlbumsViewController: UIViewController {
             if let self = self {
                 switch result {
                 case .success(let albums):
+                    if self.albumsCollection.refreshControl?.isRefreshing ?? false {
+                        self.albums.removeAll(keepingCapacity: true)
+                    }
                     let isFisrtPage = self.albums.isEmpty
                     self.albums.append(contentsOf: albums)
                     if isFisrtPage {
@@ -80,6 +94,7 @@ class AlbumsViewController: UIViewController {
                     print("-- Albums fetching error --\n\(error)")
                 }
                 self.isFetchInProgress = false
+                self.albumsCollection.refreshControl?.endRefreshing()
             }
         }
     }

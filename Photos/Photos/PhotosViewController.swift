@@ -37,12 +37,23 @@ class PhotosViewController: UIViewController {
         super.viewDidLoad()
 
         title = album?.name
-        
+
+        refresh()
+        layout()
+        configureRefreshControl()
+    }
+    
+    private func configureRefreshControl() {
+        photosCollection.refreshControl = UIRefreshControl()
+        photosCollection.refreshControl?.addTarget(self, action: #selector(refresh), for: .valueChanged)
+    }
+    
+    @objc
+    private func refresh() {
         if let album = album {
             photosRequest = PhotoService.shared.photosRequestForAlbum(album)
             loadData()
         }
-        layout()
     }
     
     private func loadData() {
@@ -53,6 +64,9 @@ class PhotosViewController: UIViewController {
             if let self = self {
                 switch result {
                 case .success(let photos):
+                    if self.photosCollection.refreshControl?.isRefreshing ?? false {
+                        self.photos.removeAll(keepingCapacity: true)
+                    }
                     let isFisrtPage = self.photos.isEmpty
                     self.photos.append(contentsOf: photos)
                     if isFisrtPage {
@@ -65,6 +79,7 @@ class PhotosViewController: UIViewController {
                     print(error)
                 }
                 self.isFetchInProgress = false
+                self.photosCollection.refreshControl?.endRefreshing()
             }
         }
     }
