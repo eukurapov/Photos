@@ -8,20 +8,14 @@
 import Foundation
 import FBSDKCoreKit
 
-struct FBResult<Element>: Codable where Element: Codable {
-    var data: [Element]
-    var paging: Paging
-    
-    struct Paging: Codable {
-        var next: String?
-    }
-}
-
 enum ServiceError: Error {
     case notAuthorised
     case parsing
     case server
 }
+
+typealias AlbumsCache = Cache<String, FBRequest<Album>>
+typealias PhotosCache = Cache<String, FBRequest<Photo>>
 
 class PhotoService {
     
@@ -29,7 +23,16 @@ class PhotoService {
     
     static let fbPhotoPermission = "user_photos"
     
-    private var imageCache = Cache<URL, UIImage>()
+    private let albumsCacheFileName = "albums"
+    private let photosCacheFileName = "photos"
+    
+    private lazy var albumsRequestCache: AlbumsCache = {
+        return AlbumsCache()
+    }()
+    private lazy var photosRequestCache: PhotosCache = {
+        return PhotosCache()
+    }()
+    private lazy var imageCache = Cache<String, UIImage>()
     
     var isAuthorised: Bool {
         if let token = AccessToken.current, !token.isExpired {
@@ -45,7 +48,7 @@ class PhotoService {
             graphPath: "/\(userId)/albums",
             parameters: ["fields": "id,name,cover_photo,created_time"]
         )
-        return FBRequest<Album>(request: request)
+        return FBRequest<Album>(request: request, cache: albumsRequestCache)
     }
     
     func photosRequestForAlbum(_ album: Album) -> FBRequest<Photo> {
@@ -53,7 +56,7 @@ class PhotoService {
             graphPath: "/\(album.id)/photos",
             parameters: ["fields": "id,name,created_time,place,from,likes.summary(true)"]
         )
-        return FBRequest<Photo>(request: request)
+        return FBRequest<Photo>(request: request, cache: photosRequestCache)
     }
     
     func fetchCoverImageForAlbum(_ album: Album, completion: @escaping (Result<UIImage,Error>) -> Void) {
@@ -71,7 +74,7 @@ class PhotoService {
         }
         let path = "https://graph.facebook.com/\(id)/picture?type=\(type)&access_token=\(token)"
         if let url = URL(string: path) {
-            if let image = imageCache.value(forKey: url) {
+            if let image = imageCache.value(forKey: id) {
                 DispatchQueue.main.async {
                     completion(Result.success(image))
                 }
@@ -92,7 +95,7 @@ class PhotoService {
                     return
                 }
                 if let data = data, let image = UIImage(data: data) {
-                    self?.imageCache.insert(image, forKey: url)
+                    self?.imageCache.insert(image, forKey: id)
                     DispatchQueue.main.async {
                         completion(Result.success(image))
                     }

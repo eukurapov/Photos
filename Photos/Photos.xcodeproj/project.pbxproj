@@ -11,6 +11,7 @@
 		440FCC312535EBD70011EED3 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC302535EBD70011EED3 /* FacebookCore */; };
 		440FCC332535EBD70011EED3 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 440FCC322535EBD70011EED3 /* FacebookLogin */; };
 		440FCC362535EDCA0011EED3 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440FCC352535EDCA0011EED3 /* LoginViewController.swift */; };
+		4423834925497F0A0047BE73 /* FBResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4423834825497F0A0047BE73 /* FBResult.swift */; };
 		4427BE182548566100F6658C /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4427BE172548566000F6658C /* Cache.swift */; };
 		44296428253746A700080B5F /* PhotoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44296427253746A700080B5F /* PhotoService.swift */; };
 		445F97AA253495CA00D9C102 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 445F97A9253495CA00D9C102 /* AppDelegate.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		4400F756253F372F0000F141 /* FBRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBRequest.swift; sourceTree = "<group>"; };
 		440FCC352535EDCA0011EED3 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		4423834825497F0A0047BE73 /* FBResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBResult.swift; sourceTree = "<group>"; };
 		4427BE172548566000F6658C /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		44296427253746A700080B5F /* PhotoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoService.swift; sourceTree = "<group>"; };
 		445F97A6253495CA00D9C102 /* Photos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Photos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -87,6 +89,7 @@
 			children = (
 				44296427253746A700080B5F /* PhotoService.swift */,
 				4400F756253F372F0000F141 /* FBRequest.swift */,
+				4423834825497F0A0047BE73 /* FBResult.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -228,6 +231,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4423834925497F0A0047BE73 /* FBResult.swift in Sources */,
 				445F97E62534C06900D9C102 /* DetailViewController.swift in Sources */,
 				4427BE182548566100F6658C /* Cache.swift in Sources */,
 				44296428253746A700080B5F /* PhotoService.swift in Sources */,

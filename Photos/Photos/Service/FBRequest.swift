@@ -12,19 +12,33 @@ import FBSDKLoginKit
 class FBRequest<Element> where Element: Codable {
     
     var request: GraphRequest
+    var elements = [Element]()
     private var next: String?
+    
+    private var cache: Cache<String, FBRequest<Element>>
     
     var hasNext: Bool {
         return next != .none
     }
     
-    init(request: GraphRequest) {
+    init(request: GraphRequest, cache: Cache<String, FBRequest<Element>>) {
         self.request = request
+        self.cache = cache
     }
     
     func fetch(completion: @escaping (Result<[Element],Error>) -> Void) {
         guard let _ = AccessToken.current else {
             completion(Result.failure(ServiceError.notAuthorised))
+            return
+        }
+        if elements.isEmpty,
+           let fbRequest = cache.value(forKey: request.graphPath) {
+            self.request = fbRequest.request
+            self.elements = fbRequest.elements
+            self.next = fbRequest.next
+            DispatchQueue.main.async {
+                completion(Result.success(self.elements))
+            }
             return
         }
         if hasNext {
@@ -48,6 +62,8 @@ class FBRequest<Element> where Element: Codable {
                         DispatchQueue.main.async {
                             completion(Result.success(fbResult.data))
                         }
+                        self?.elements.append(contentsOf: fbResult.data)
+                        self?.cache.insert(self!, forKey: self!.request.graphPath)
                         return
                     }
                 }
