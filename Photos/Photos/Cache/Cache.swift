@@ -11,7 +11,7 @@ final class Cache<Key, Value> where Key: Hashable {
     
     private let wrappedCache = NSCache<WrappedKey, WrappedValue>()
     private let keyTracker = KeyTracker()
-    private var filename: String?
+    var filename: String?
     
     init(filename: String? = nil, maxValueCount: Int = 100) {
         wrappedCache.countLimit = maxValueCount

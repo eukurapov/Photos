@@ -14,8 +14,8 @@ enum ServiceError: Error {
     case server
 }
 
-typealias AlbumsCache = Cache<String, FBRequest<Album>>
-typealias PhotosCache = Cache<String, FBRequest<Photo>>
+typealias AlbumsCache = Cache<String, FBResult<Album>>
+typealias PhotosCache = Cache<String, FBResult<Photo>>
 
 class PhotoService {
     
@@ -26,12 +26,8 @@ class PhotoService {
     private let albumsCacheFileName = "albums"
     private let photosCacheFileName = "photos"
     
-    private lazy var albumsRequestCache: AlbumsCache = {
-        return AlbumsCache()
-    }()
-    private lazy var photosRequestCache: PhotosCache = {
-        return PhotosCache()
-    }()
+    private lazy var albumsRequestCache: AlbumsCache = AlbumsCache(filename: albumsCacheFileName)
+    private lazy var photosRequestCache: PhotosCache = PhotosCache(filename: photosCacheFileName)
     private lazy var imageCache = Cache<String, UIImage>()
     
     var isAuthorised: Bool {

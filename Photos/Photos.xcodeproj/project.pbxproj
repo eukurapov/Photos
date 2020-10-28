@@ -114,10 +114,10 @@
 			isa = PBXGroup;
 			children = (
 				4427BE162548564900F6658C /* Cache */,
-				4427BE152548562D00F6658C /* ViewControllers */,
 				442964262537466E00080B5F /* Service */,
 				445F97CD25349C0C00D9C102 /* Model */,
 				445F97D625349ED900D9C102 /* Views */,
+				4427BE152548562D00F6658C /* ViewControllers */,
 				445F97C02534981600D9C102 /* Supportive Files */,
 			);
 			path = Photos;
