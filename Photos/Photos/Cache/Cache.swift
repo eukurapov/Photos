@@ -186,7 +186,9 @@ extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
             return wrappedValue.value
         } else {
             if let value = loadImageFromFile(named: key.description) {
-                insert(value, forKey: key)
+                let wrappedValue = WrappedValue(key: key, value: value)
+                wrappedCache.setObject(wrappedValue, forKey: WrappedKey(key))
+                keyTracker.keys.insert(key)
                 return value
             }
         }
