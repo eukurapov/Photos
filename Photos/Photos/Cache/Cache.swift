@@ -160,6 +160,8 @@ extension Cache where Key: Codable, Value: Codable {
     
 }
 
+private let maxImageSize: CGFloat = 800
+
 extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
 
     func insert(_ value: Value, forKey key: Key) {
@@ -187,8 +189,13 @@ extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
     }
     
     private func saveImageToFile(_ image: UIImage, named name: String) {
-        if let data = image.pngData() {
-            try? data.write(to: pathForFileNamed(name))
+        let maxSize = max(image.size.height, image.size.width)
+        let scale = maxSize > maxImageSize ? (maxImageSize / maxSize) : 1
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        if let imageToSave = (scale != 1 ? image.resizedToFit(size: size) : image) {
+            if let data = imageToSave.pngData() {
+                try? data.write(to: pathForFileNamed(name))
+            }
         }
     }
     
@@ -206,3 +213,23 @@ extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
     
 }
 
+extension UIImage {
+    
+    func resizedToFit(size: CGSize) -> UIImage? {
+        guard let cgImage = self.cgImage else { return nil }
+        let context = CGContext(data: nil,
+                                width: Int(size.width),
+                                height: Int(size.height),
+                                bitsPerComponent: cgImage.bitsPerComponent,
+                                bytesPerRow: cgImage.bytesPerRow,
+                                space: cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!,
+                                bitmapInfo: cgImage.bitmapInfo.rawValue)
+        context?.interpolationQuality = .high
+        context?.draw(cgImage, in: CGRect(origin: .zero, size: size))
+
+        guard let scaledImage = context?.makeImage() else { return nil }
+
+        return UIImage(cgImage: scaledImage)
+    }
+
+}
