@@ -15,3 +15,5 @@ Features:
 * Swiping photos in full-screen view
 * Swipe up to see photo details (almost like in iOS photos)
 * Map with the location for photos with place
+* Persistent cache for albums and photos lists
+* Persistent cache for images (up to 1000) for offline usage
