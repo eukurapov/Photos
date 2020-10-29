@@ -55,7 +55,7 @@ class DetailViewController: UIViewController {
     private func fetchImage() {
         guard let photo = self.photo else { return }
         guard image == nil else { return }
-        PhotoService.shared.fetchImageForPhoto(photo) { [weak self] result in
+        PhotoService.shared.fetchFullSizeImageForPhoto(photo) { [weak self] result in
             switch result {
             case .success(let image):
                 self?.image = image

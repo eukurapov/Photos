@@ -14,6 +14,11 @@ struct Photo: Codable, Equatable {
     var createdAt: Date
     var place: Place?
     var likes: Likes?
+    var images: [Image]?
+    
+    var fullSizeImageSource: String? {
+        return images?[0].source
+    }
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -21,6 +26,7 @@ struct Photo: Codable, Equatable {
         case createdAt = "created_time"
         case place
         case likes
+        case images
     }
     
     static func == (lhs: Photo, rhs: Photo) -> Bool {
@@ -49,6 +55,12 @@ struct Photo: Codable, Equatable {
                 case total = "total_count"
             }
         }
+    }
+    
+    struct Image: Codable {
+        var source: String
+        var height: Int
+        var width: Int
     }
     
 }

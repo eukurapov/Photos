@@ -12,6 +12,7 @@ enum ServiceError: Error {
     case notAuthorised
     case parsing
     case server
+    case unknown
 }
 
 typealias AlbumsCache = Cache<String, FBResult<Album>>
@@ -25,6 +26,8 @@ class PhotoService {
     
     private let albumsCacheFileName = "albums"
     private let photosCacheFileName = "photos"
+    
+    private let fullScreenPrefix = "fs-"
     
     private lazy var albumsRequestCache: AlbumsCache = AlbumsCache(filename: albumsCacheFileName)
     private lazy var photosRequestCache: PhotosCache = PhotosCache(filename: photosCacheFileName)
@@ -50,27 +53,45 @@ class PhotoService {
     func photosRequestForAlbum(_ album: Album) -> FBRequest<Photo> {
         let request = GraphRequest(
             graphPath: "/\(album.id)/photos",
-            parameters: ["fields": "id,name,created_time,place,from,likes.summary(true)"]
+            parameters: ["fields": "id,name,created_time,place,from,likes.summary(true),images"]
         )
         return FBRequest<Photo>(request: request, cache: photosRequestCache)
     }
     
     func fetchCoverImageForAlbum(_ album: Album, completion: @escaping (Result<UIImage,Error>) -> Void) {
-        fetchImageForId(album.id, type: "album", completion: completion)
-    }
-    
-    func fetchImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
-        fetchImageForId(photo.id, completion: completion)
-    }
-    
-    private func fetchImageForId(_ id: String, type: String = "normal", completion: @escaping (Result<UIImage,Error>) -> Void) {
         guard let token = AccessToken.current?.tokenString else {
             completion(Result.failure(ServiceError.notAuthorised))
             return
         }
-        let path = "https://graph.facebook.com/\(id)/picture?type=\(type)&access_token=\(token)"
+        let path = "https://graph.facebook.com/\(album.id)/picture?type=album&access_token=\(token)"
+        fetchImageFrom(path: path, cacheKey: album.id, completion: completion)
+    }
+    
+    func fetchImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
+        guard let token = AccessToken.current?.tokenString else {
+            completion(Result.failure(ServiceError.notAuthorised))
+            return
+        }
+        let path = "https://graph.facebook.com/\(photo.id)/picture?type=normal&access_token=\(token)"
+        fetchImageFrom(path: path, cacheKey: photo.id, completion: completion)
+    }
+    
+    func fetchFullSizeImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
+        guard isAuthorised else {
+            completion(Result.failure(ServiceError.notAuthorised))
+            return
+        }
+        if let path = photo.fullSizeImageSource {
+            fetchImageFrom(path: path, cacheKey: "\(fullScreenPrefix)\(photo.id)", completion: completion)
+        } else {
+            completion(Result.failure(ServiceError.unknown))
+            return
+        }
+    }
+    
+    private func fetchImageFrom(path: String, cacheKey: String, completion: @escaping (Result<UIImage,Error>) -> Void) {
         if let url = URL(string: path) {
-            if let image = imageCache.value(forKey: id) {
+            if let image = imageCache.value(forKey: cacheKey) {
                 DispatchQueue.main.async {
                     completion(Result.success(image))
                 }
@@ -78,6 +99,14 @@ class PhotoService {
             }
             let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
                 if let error = error {
+                    if let self = self,
+                       cacheKey.hasPrefix(self.fullScreenPrefix),
+                       let image = self.imageCache.value(forKey: String(cacheKey.dropFirst(self.fullScreenPrefix.count))) {
+                        DispatchQueue.main.async {
+                            completion(Result.success(image))
+                        }
+                        return
+                    }
                     DispatchQueue.main.async {
                         completion(Result.failure(error))
                     }
@@ -91,7 +120,7 @@ class PhotoService {
                     return
                 }
                 if let data = data, let image = UIImage(data: data) {
-                    self?.imageCache.insert(image, forKey: id)
+                    self?.imageCache.insert(image, forKey: cacheKey)
                     DispatchQueue.main.async {
                         completion(Result.success(image))
                     }
