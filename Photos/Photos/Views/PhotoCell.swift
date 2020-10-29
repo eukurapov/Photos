@@ -27,7 +27,14 @@ class PhotoCell: UICollectionViewCell {
                 switch result {
                 case .success(let image):
                     self?.activityIndicator.stopAnimating()
-                    self?.imageView.image = image
+                    guard let self = self else { return }
+                    UIView.transition(
+                        with: self.imageView,
+                        duration: 1.0,
+                        options: [.curveEaseOut, .transitionCrossDissolve],
+                        animations: {
+                            self.imageView.image = image
+                        })
                 case .failure(let error):
                     self?.activityIndicator.stopAnimating()
                     self?.imageView.image = UIImage(systemName: "exclamationmark.icloud")

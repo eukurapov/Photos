@@ -17,7 +17,13 @@ class ImageCell: UITableViewCell {
                 return
             }
             activityIndicator.stopAnimating()
-            photoView.image = photo
+            UIView.transition(
+                with: self.photoView,
+                duration: 1.0,
+                options: [.curveEaseOut, .transitionCrossDissolve],
+                animations: {
+                    self.photoView.image = photo
+                })
             let size = CGSize(width: boundsWidthInSafeArea, height: boundsHeightInSafeArea)
             updateMinZoomScaleForSize(size)
             scrollView.zoomScale = scrollView.minimumZoomScale

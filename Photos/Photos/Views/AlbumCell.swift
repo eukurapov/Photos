@@ -24,7 +24,14 @@ class AlbumCell: UICollectionViewCell {
                 switch result {
                 case .success(let image):
                     self?.activityIndicator.stopAnimating()
-                    self?.coverImageView.image = image
+                    guard let self = self else { return }
+                    UIView.transition(
+                        with: self.coverImageView,
+                        duration: 1.0,
+                        options: [.curveEaseOut, .transitionCrossDissolve],
+                        animations: {
+                            self.coverImageView.image = image
+                        })
                 case .failure(let error):
                     self?.activityIndicator.stopAnimating()
                     self?.coverImageView.image = UIImage(systemName: "exclamationmark.icloud")
