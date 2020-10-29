@@ -64,7 +64,7 @@ class PhotoService {
             return
         }
         let path = "https://graph.facebook.com/\(album.id)/picture?type=album&access_token=\(token)"
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).sync {
             self.fetchImageFrom(path: path, cacheKey: album.id, completion: completion)
         }
     }
@@ -75,7 +75,7 @@ class PhotoService {
             return
         }
         let path = "https://graph.facebook.com/\(photo.id)/picture?type=normal&access_token=\(token)"
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).sync {
             self.fetchImageFrom(path: path, cacheKey: photo.id, completion: completion)
         }
     }
@@ -86,7 +86,7 @@ class PhotoService {
             return
         }
         if let path = photo.fullSizeImageSource {
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global(qos: .userInitiated).sync {
                 self.fetchImageFrom(path: path, cacheKey: "\(self.fullScreenPrefix)\(photo.id)", completion: completion)
             }
         } else {
