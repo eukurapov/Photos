@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Album: Codable {
+struct Album: Codable, Equatable {
     
     var id: String
     var name: String
@@ -17,6 +17,10 @@ struct Album: Codable {
         case id
         case name
         case createdAt = "created_time"
+    }
+    
+    static func == (lhs: Album, rhs: Album) -> Bool {
+        return lhs.id == rhs.id
     }
     
 }

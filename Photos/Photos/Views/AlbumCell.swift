@@ -20,7 +20,8 @@ class AlbumCell: UICollectionViewCell {
             guard let album = self.album else { return }
             nameLabel.text = album.name
             createdAtLabel.text = dateFormatter.string(from: album.createdAt)
-            PhotoService.shared.fetchCoverImageForAlbum(album) { [weak self] result in
+            PhotoService.shared.fetchCoverImageForAlbum(album) { [weak self, album] result in
+                guard self?.album == album else { return }
                 switch result {
                 case .success(let image):
                     self?.activityIndicator.stopAnimating()
