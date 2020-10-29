@@ -10,6 +10,7 @@ import FBSDKLoginKit
 
 class LoginViewController: UIViewController {
 
+    let titleLabel = UILabel()
     let loginButton = FBLoginButton()
     var closeButton: UIButton?
     
@@ -18,13 +19,34 @@ class LoginViewController: UIViewController {
         
         view.backgroundColor = .systemBackground
         
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.alpha = 0.7
+        titleLabel.numberOfLines = 0
+        titleLabel.text = "Login to browse your Facebook albums"
+        
         if let token = AccessToken.current, !token.isExpired {
+            titleLabel.text = "Stay logged in to keep access to photos"
             addCloseButton()
         }
         
         loginButton.permissions = ["user_photos"]
-        loginButton.center = view.center
+        
+        layout()
+    }
+    
+    private func layout() {
         view.addSubview(loginButton)
+        view.addSubview(titleLabel)
+        loginButton.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            loginButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            loginButton.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 10),
+            titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
+        ])
     }
     
     private func addCloseButton() {
