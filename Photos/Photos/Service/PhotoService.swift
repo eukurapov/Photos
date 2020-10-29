@@ -64,7 +64,9 @@ class PhotoService {
             return
         }
         let path = "https://graph.facebook.com/\(album.id)/picture?type=album&access_token=\(token)"
-        fetchImageFrom(path: path, cacheKey: album.id, completion: completion)
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.fetchImageFrom(path: path, cacheKey: album.id, completion: completion)
+        }
     }
     
     func fetchImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
@@ -73,7 +75,9 @@ class PhotoService {
             return
         }
         let path = "https://graph.facebook.com/\(photo.id)/picture?type=normal&access_token=\(token)"
-        fetchImageFrom(path: path, cacheKey: photo.id, completion: completion)
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.fetchImageFrom(path: path, cacheKey: photo.id, completion: completion)
+        }
     }
     
     func fetchFullSizeImageForPhoto(_ photo: Photo, completion: @escaping (Result<UIImage,Error>) -> Void) {
@@ -82,7 +86,9 @@ class PhotoService {
             return
         }
         if let path = photo.fullSizeImageSource {
-            fetchImageFrom(path: path, cacheKey: "\(fullScreenPrefix)\(photo.id)", completion: completion)
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.fetchImageFrom(path: path, cacheKey: "\(self.fullScreenPrefix)\(photo.id)", completion: completion)
+            }
         } else {
             completion(Result.failure(ServiceError.unknown))
             return

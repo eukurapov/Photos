@@ -13,9 +13,10 @@ final class Cache<Key, Value> where Key: Hashable {
     private let keyTracker = KeyTracker()
     var filename: String?
     
-    init(filename: String? = nil, maxValueCount: Int = 100) {
-        wrappedCache.countLimit = maxValueCount
+    init(filename: String? = nil, maxValueCount: Int = 1000) {
         self.filename = filename
+        wrappedCache.countLimit = maxValueCount
+        wrappedCache.delegate = keyTracker
     }
     
     func insert(_ value: Value, forKey key: Key) {
@@ -99,6 +100,15 @@ private extension Cache {
                 return
             }
             keys.remove(wrappedValue.key)
+            if let _ = wrappedValue.value as? UIImage,
+               let key = wrappedValue.key as? CustomStringConvertible {
+                let folderURLs = FileManager.default.urls(
+                    for: .cachesDirectory,
+                    in: .userDomainMask
+                )
+                let path = folderURLs[0].appendingPathComponent("\(key.description).png")
+                try? FileManager.default.removeItem(at: path)
+            }
         }
     }
 }
