@@ -106,7 +106,7 @@ private extension Cache {
                     for: .cachesDirectory,
                     in: .userDomainMask
                 )
-                let path = folderURLs[0].appendingPathComponent("\(key.description).png")
+                let path = folderURLs[0].appendingPathComponent("\(key.description).jpg")
                 try? FileManager.default.removeItem(at: path)
             }
         }
@@ -205,7 +205,7 @@ extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
         let scale = maxSize > maxImageSize ? (maxImageSize / maxSize) : 1
         let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
         if let imageToSave = (scale != 1 ? image.resizedToFit(size: size) : image) {
-            if let data = imageToSave.pngData() {
+            if let data = imageToSave.jpegData(compressionQuality: 1.0) {
                 try? data.write(to: pathForFileNamed(name))
             }
         }
@@ -220,7 +220,7 @@ extension Cache where Key: Codable & CustomStringConvertible, Value: UIImage {
             for: .cachesDirectory,
             in: .userDomainMask
         )
-        return folderURLs[0].appendingPathComponent("\(name).png")
+        return folderURLs[0].appendingPathComponent("\(name).jpg")
     }
     
 }
